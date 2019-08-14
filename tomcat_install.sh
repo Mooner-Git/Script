@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Tomcat install
 apt-get update
 apt-get install default-jdk -y
 mkdir -p /opt
