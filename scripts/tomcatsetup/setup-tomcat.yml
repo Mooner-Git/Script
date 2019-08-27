@@ -1,0 +1,10 @@
+---
+
+- hosts: tomcat
+
+- name: Tomcat deployment playbook
+  become: yes
+  become_method: sudo
+  remote_user: vagrant
+  roles:
+    - tomcat

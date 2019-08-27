@@ -1,0 +1,38 @@
+#[Unit]
+#Description=Tomcat
+#After=syslog.target network.target
+
+#[Service]
+#Type=forking
+
+User=tomcat
+Group=tomcat
+
+Environment=JAVA_HOME=/usr/lib/jvm/default-java
+Environment='JAVA_OPTS=-Djava.awt.headless=true'
+
+Environment=CATALINA_HOME=/usr/share/tomcat
+Environment=CATALINA_BASE=/usr/share/tomcat
+Environment=CATALINA_PID=/usr/share/tomcat/temp/tomcat.pid
+
+#ExecStart=/usr/share/tomcat/bin/catalina.sh start
+#ExecStop=/usr/share/tomcat/bin/catalina.sh stop
+
+case "$1" in
+  start)
+    /usr/share/tomcat/bin/catalina.sh start
+    echo "Starting Tomcat ....."
+    ;;
+  stop)
+    /usr/share/tomcat/bin/catalina.sh stop
+    echo "Stopping Tomcat"
+    ;;
+  *)
+    echo "Usage: sudo service myprog {start|stop|version|try}" >&2
+    exit 3
+    ;;
+esac
+
+
+#[Install]
+#WantedBy=multi-user.target

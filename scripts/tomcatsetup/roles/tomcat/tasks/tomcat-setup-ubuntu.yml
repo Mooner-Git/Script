@@ -1,0 +1,65 @@
+---
+
+- hosts: elk
+  gather_facts: true
+  become: true
+
+  tasks:
+  - name: install basic packages
+    package:
+      name: ['vim','aptitude','bash-completion','tmux','tree','htop','wget','unzip','curl','git']
+      state: present
+      update_cache: yes
+
+  - name: Install Default Java
+    apt:
+      name: default-jdk
+      state: present
+
+  - name: Add tomcat group
+    group:
+      name: tomcat
+
+  - name: Add "tomcat" user
+    user:
+      name: tomcat
+      group: tomcat
+      home: /usr/share/tomcat
+      createhome: no
+      system: yes
+
+  - name: Download Tomcat
+    get_url:
+      url: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.21/bin/apache-tomcat-9.0.21.tar.gz
+      dest: /tmp/apache-tomcat-9.0.21.tar.gz
+
+  - name: Create a tomcat directory
+    file:
+      path: /usr/share/tomcat
+      state: directory
+      owner: tomcat
+      group: tomcat
+  
+  - name: Extract tomcat archive
+    unarchive:
+      src: /tmp/apache-tomcat-9.0.21.tar.gz
+      dest: /usr/share/tomcat/
+      owner: tomcat
+      group: tomcat
+      remote_src: yes
+      extra_opts: "--strip-components=1"
+      creates: /usr/share/tomcat/bin
+
+  - name: Template a file to /etc/init.d
+    template:
+      src: /etc/ansible/playbooks/roles/tomcat/templates/tomcat.service.j2
+      dest: /etc/init.d/tomcat
+      owner: root
+      group: root
+      mode: '0744'
+
+  - name: Start and enable tomcat
+    command: /usr/sbin/service tomcat start
+    ignore_errors: yes
+#      enabled: yes
+#    when: ansible_service_mgr == "systemd"
