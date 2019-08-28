@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType:
+        Ref: InstanceTypeParameter
+      SecurityGroups: 
+      - MyGroup
+      KeyName: 'testpair'
+      ImageId: 'ami-07d0cf3af28718ef8'
+
+      UserData:
+       Fn::Base64:
+         !Sub |
+           #!/bin/bash -xe
+           /usr/bin/apt-get update
+           /usr/bin/apt-add-repository ppa:ansible/ansible
+           /usr/bin/apt-get update -y
+           /usr/bin/apt-get install ansible -y
+           /usr/bin/apt-get install git
+           /bin/mkdir /etc/ansible/tomcat/
+           /usr/bin/git clone https://github.com/Mooner-Git/cfn-tomcat.git /etc/ansible/tomcat/
+           ansible-playbook /etc/ansible/tomcat/tomcatsetup/roles/tomcat/tasks/tomcat-setup-ubuntu.yml
+           
+      Tags:
+        - Key: Name
+          Value: Tomcat-Automation
+        - Key: Owner
+          Value: Mooner
+        - Key: Usage
+          Value: Cloudformation 
